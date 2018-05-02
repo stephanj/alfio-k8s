@@ -1,0 +1,52 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: alfio
+  namespace: default
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: alfio
+    spec:
+      containers:
+      - name: alfio-app
+        image: alfio/alf.io
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: SPRING_PROFILES_ACTIVE
+          value: prod
+        - name: datasource.dialect
+          value: MYSQL
+        - name: datasource.driver
+          value: com.zaxxer.hikari.HikariDataSource
+        - name: datasource.url
+          value: jdbc:mysql://alfio-mysql.default.svc.cluster.local:3306/alfio?useUnicode=true&characterEncoding=utf8&useSSL=false
+        - name: datasource.username
+          value: root
+        - name: datasource.password
+          value: ''
+        - name: JAVA_OPTS
+          value: " -Xmx256m -Xms256m"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "300m"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+        ports:
+        - name: web
+          containerPort: 8080
+# Unclear if Alf.io has a health endpoint?!
+#        readinessProbe:
+#          httpGet:
+#            path: /healthz
+#            port: web
+#        livenessProbe:
+#          httpGet:
+#            path: /healthz
+#            port: web
+#          initialDelaySeconds: 180
+
