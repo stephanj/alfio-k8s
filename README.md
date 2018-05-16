@@ -376,19 +376,25 @@ spec:
         imagePullPolicy: IfNotPresent
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: prod
-        - name: datasource.dialect
-          value: MYSQL
-        - name: datasource.driver
-          value: com.zaxxer.hikari.HikariDataSource
-        - name: datasource.url
-          value: jdbc:mysql://alfio-mysql.default.svc.cluster.local:3306/alfio?useUnicode=true&characterEncoding=utf8&useSSL=false
-        - name: datasource.username
-          value: root
-        - name: datasource.password
-          value: 'xxxxxxxxxxxxxxx'
+          value: jdbc-session
+        - name: POSTGRES_PORT_5432_TCP_PORT
+          value: "5432"
+        - name: POSTGRES_ENV_POSTGRES_DB
+          value: alfio
+        - name: POSTGRES_PORT_5432_TCP_ADDR
+          value: "127.0.0.1"
+        - name: POSTGRES_ENV_POSTGRES_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: alfio-postgresql-credentials
+              key: username
+        - name: POSTGRES_ENV_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: alfio-postgresql-credentials
+              key: password
         - name: JAVA_OPTS
-          value: " -Xmx256m -Xms256m"
+          value: "-XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap -XX:+UseConcMarkSweepGC -Xmx256m -Xms256m"
         resources:
           requests:
             memory: "256Mi"
@@ -399,16 +405,15 @@ spec:
         ports:
         - name: web
           containerPort: 8080 
-# Unclear if Alf.io has a health endpoint?!           
-#        readinessProbe:
-#          httpGet:
-#            path: /healthz
-#            port: web
-#        livenessProbe:
-#          httpGet:
-#            path: /healthz
-#            port: web
-#          initialDelaySeconds: 180          
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: web
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: web
+          initialDelaySeconds: 180          
 ```
 
 You should consider using Kubernetes secrets for the database password but it's out-of-scope of this documentation.
