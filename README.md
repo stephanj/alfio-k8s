@@ -354,8 +354,7 @@ for example
 gcr.io/devoxx-registration/alfioadapter:v1.9.3    
 ```
 
-The example deployment also uses a MySQL database and this is also installed using a yaml file. 
-For production I strongly suggest to use a Cloud SQL managed instance instead. 
+The example deployment uses a PostgreSQL database using a Google Cloud SQL managed instance.
 
 ```
 apiVersion: extensions/v1beta1
